@@ -1,5 +1,5 @@
 class V1::CommentsController < V1::BaseController
-  before_action :set_comment, only: [:show, :edit, :update, :destroy]
+  before_action :set_comment, only: [:show, :update, :destroy]
 
   # GET /comments
   def index
@@ -9,6 +9,11 @@ class V1::CommentsController < V1::BaseController
 
   # GET /comments/1
   def show
+    if @comment.present?
+      json_response(@comment)
+    else
+      head :not_found
+    end
   end
 
   # POST /comments
@@ -16,18 +21,20 @@ class V1::CommentsController < V1::BaseController
     @comment = Comment.new(comment_params)
 
     if @comment.save
-      json_response(@coment, :created)
+      json_response(@comment, :created)
     else
-      json_response(@coment.errors.full_messages, :unprocessable_entity)
+      json_response(@comment.errors.full_messages, :unprocessable_entity)
     end
   end
 
   # PATCH/PUT /comments/1
   def update
+    return json_response(nil, :not_found) if @comment.nil?
+
     if @comment.update(comment_params)
-      json_response(@coment)
+      json_response(@comment)
     else
-      json_response(@coment.errors.full_messages, :unprocessable_entity)
+      json_response(@comment.errors.full_messages, :unprocessable_entity)
     end
   end
 
