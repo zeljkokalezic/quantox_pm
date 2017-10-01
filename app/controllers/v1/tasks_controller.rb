@@ -27,8 +27,10 @@ class V1::TasksController < V1::BaseController
 
   # PATCH/PUT /tasks/1
   def update
+    return json_response(nil, :not_found) if @task.nil?
+
     if @task.update(task_params)
-      json_response(@task, :created)
+      json_response(@task)
     else
       json_response(@task.errors.full_messages, :unprocessable_entity)
     end

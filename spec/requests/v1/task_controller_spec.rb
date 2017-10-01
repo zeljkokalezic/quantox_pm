@@ -1,21 +1,24 @@
 require 'rails_helper'
 
-describe V1::ProjectsController do
+describe V1::TasksController do
   # initialize test data
   let(:user) { create(:user) }
   let(:new_user) { create(:user) }
-  let!(:projects) {
+  let(:project) { FactoryGirl.create(:project, {:user => user}) }
+  let!(:tasks) {
     (1..10).map do |el|
-      FactoryGirl.create(:project, {:user => user})
+      FactoryGirl.create(:task, {
+          :project => project,
+          :user => user
+      })
     end
   }
-
-  let(:project_id) { projects.first.id }
+  let(:task_id) { tasks.first.id }
 
   describe 'authorization' do
     context 'when unauthorized' do
       before do
-        get "/v1/projects/#{project_id}"
+        get "/v1/tasks/#{task_id}"
       end
 
       it 'returns unauthorized message' do
@@ -30,7 +33,7 @@ describe V1::ProjectsController do
     context 'when authorized' do
       before do
         sign_in user
-        get "/v1/projects/#{project_id}"
+        get "/v1/tasks/#{task_id}"
       end
 
       it 'returns status code 200' do
@@ -43,14 +46,14 @@ describe V1::ProjectsController do
     end
   end
 
-  describe 'GET /v1/projects' do
-    context 'user projects exist' do
+  describe 'GET /v1/tasks' do
+    context 'user tasks exist' do
       before do
         sign_in user
-        get "/v1/projects?user_id=#{user.id}"
+        get "/v1/tasks?project_id=#{project.id}"
       end
 
-      it 'returns projects' do
+      it 'returns tasks' do
         expect(json).not_to be_empty
         expect(json.size).to eq(10)
       end
@@ -60,13 +63,13 @@ describe V1::ProjectsController do
       end
     end
 
-    context 'no user projects exist' do
+    context 'no user tasks exist' do
       before do
         sign_in new_user
-        get "/v1/projects?user_id=#{new_user.id}"
+        get "/v1/tasks?user_id=#{new_user.id}"
       end
 
-      it 'returns projects' do
+      it 'returns tasks' do
         expect(json).to be_empty
         expect(json.size).to eq(0)
       end
@@ -77,16 +80,16 @@ describe V1::ProjectsController do
     end
   end
 
-  describe 'GET /v1/projects/:id' do
+  describe 'GET /v1/tasks/:id' do
     before do
       sign_in user
-      get "/v1/projects/#{project_id}"
+      get "/v1/tasks/#{task_id}"
     end
 
     context 'when the record exists' do
       it 'returns the project' do
         expect(json).not_to be_empty
-        expect(json['id']).to eq(project_id)
+        expect(json['id']).to eq(task_id)
       end
 
       it 'returns status code 200' do
@@ -95,7 +98,7 @@ describe V1::ProjectsController do
     end
 
     context 'when the record does not exist' do
-      let(:project_id) { 100 }
+      let(:task_id) { 100 }
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -107,17 +110,24 @@ describe V1::ProjectsController do
     end
   end
 
-  describe 'POST /v1/projects/' do
+  describe 'POST /v1/tasks/' do
     # valid payload
-    let(:valid_attributes) { { name: 'Learn Vue JS', description: 'Project for learning', user_id: user.id } }
+    let(:valid_attributes) { { name: 'Learn Vue JS',
+                               description: 'Task for learning',
+                               user_id: user.id,
+                               project_id: project.id,
+                               priority: 'P0',
+                               status: 'done',
+                               deadline: Time.now
+    } }
 
     context 'when the request is valid' do
       before do
         sign_in user
-        post '/v1/projects/', params: valid_attributes
+        post '/v1/tasks/', params: valid_attributes
       end
 
-      it 'creates a project' do
+      it 'creates a task' do
         expect(json['name']).to eq(valid_attributes[:name])
       end
 
@@ -129,7 +139,7 @@ describe V1::ProjectsController do
     context 'when the request is invalid' do
       before do
         sign_in user
-        post '/v1/projects/', params: { title: 'Foobar' }
+        post '/v1/tasks/', params: { title: 'Foobar' }
       end
 
       it 'returns status code 422' do
@@ -143,13 +153,13 @@ describe V1::ProjectsController do
     end
   end
 
-  describe 'PUT /v1/projects/' do
+  describe 'PUT /v1/tasks/' do
     let(:valid_attributes) { { description: 'Description Changed' } }
 
     context 'when the record exists' do
       before do
         sign_in user
-        put "/v1/projects/#{project_id}", params: valid_attributes
+        put "/v1/tasks/#{task_id}", params: valid_attributes
       end
 
       it 'updates the record' do
@@ -164,7 +174,7 @@ describe V1::ProjectsController do
     context 'when the record does not exist' do
       before do
         sign_in user
-        put "/v1/projects/#{100}", params: valid_attributes
+        put "/v1/tasks/#{100}", params: valid_attributes
       end
 
       it 'returns status code 404' do
@@ -173,11 +183,11 @@ describe V1::ProjectsController do
     end
   end
 
-  describe 'DELETE /v1/projects/:id' do
+  describe 'DELETE /v1/tasks/:id' do
     context 'when the record does not exist' do
       before do
         sign_in user
-        delete "/v1/projects/#{project_id}"
+        delete "/v1/tasks/#{task_id}"
       end
 
       it 'returns status code 204' do
@@ -188,7 +198,7 @@ describe V1::ProjectsController do
     context 'when the record does not exist' do
       before do
         sign_in user
-        delete "/v1/projects/#{100}"
+        delete "/v1/tasks/#{100}"
       end
 
       it 'returns status code 404' do
