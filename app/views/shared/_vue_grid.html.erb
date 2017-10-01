@@ -1,0 +1,109 @@
+<!-- component template -->
+<script type="text/x-template" id="grid-template">
+  <div>
+
+    <div class="form-inline">
+      <div class="form-group">
+        <label for="query">Search: </label>
+        <input class="form-control ml-1" name="query" v-model="filterKey">
+        <button type="button" class="btn btn-info ml-5" @click="showNew" v-if="!hideNew">New</button>
+      </div>
+    </div>
+
+    <table class="table mt-2">
+      <thead>
+      <tr>
+        <th v-for="key in gridConfigData.columns"
+            @click="sortBy(key)"
+            :class="{ active: sortKey == key }">
+          {{ key | capitalize }}
+          <span v-if="key != 'actions'" class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
+        </span>
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="entry in filteredData">
+        <td v-for="key in gridConfigData.columns">
+          <div v-if="key != 'actions' && key != 'documents'" >{{ entry[key] | capitalize }}</div>
+          <template v-if="key == 'actions'">
+            <a class="btn btn-warning" :href="gridConfigData.viewUrl.replace('-1', entry['id'])">View</a>
+            <button type="button" class="btn btn-success" v-if="!hideEdit" @click="showEdit(entry)">Edit</button>
+            <button type="button" class="btn btn-danger" @click="showDelete(entry)">Delete</button>
+          </template>
+          <template v-if="key == 'documents'">
+            <ul v-for="document in entry['documents']">
+              <li>
+                <a class="" :href="gridConfigData.documentUrl.replace('-1', document.id)">{{ document.filename }}</a>
+              </li>
+            </ul>
+          </template>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <transition v-if="showDeleteModal" name="modal">
+      <div class="modal-mask">
+        <div class="modal-wrapper">
+          <div class="modal-container">
+
+            <div class="modal-header">
+              Are you sure?
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-danger" @click="doDeleteAction(currentEntityId)">
+                OK
+              </button>
+              <button class="btn btn-info" @click="showDeleteModal = false">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+    <transition v-if="showEditModal" name="modal">
+      <div class="modal-mask">
+        <div class="modal-wrapper">
+          <div class="modal-container">
+
+            <div class="modal-header">
+              Entity Editor
+            </div>
+
+            <div class="modal-body">
+              <% if defined? form_partial %>
+                <%= render :partial => form_partial %>
+              <% end %>
+            </div>
+
+        <div class="modal-footer">
+              <button class="btn btn-info" @click="showEditModal = false">
+                Cancel
+              </button>
+              <button class="btn btn-success" @click="doSaveAction(currentEntityId)">
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+  </div>
+</script>
+
+<!-- grid data element -->
+<%= content_tag :div,
+    nil,
+    id: 'grid-data',
+    data: data
+%>
+
+<!-- grid root element -->
+<div id="grid-container" class="container">
+  <demo-grid :grid-config-data="gridConfigData" ></demo-grid>
+</div>

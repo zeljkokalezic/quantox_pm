@@ -1,0 +1,121 @@
+<%= javascript_pack_tag 'vue_grid' %>
+
+<div id="container">
+  <div class="row ml-2">
+    <div class="col-sm-4">
+      <label >
+        <strong>Text:</strong>
+        <%= @comment.text %>
+      </label>
+      <br/>
+      <label>
+        <strong>Task:</strong>
+        <a href=" <%= task_path(@comment.task.id) %>"><%= @comment.task.name %></a>
+      </label>
+    </div>
+  </div>
+
+  <hr>
+
+  <h5 class="ml-3">File Management</h5>
+
+  <form class="form-inline col-10" action="/" method="post" enctype="multipart/form-data" id="form-id">
+    <!-- The file to upload -->
+    <p>
+      <input id="refresh_grid_trigger" type="hidden">
+      <input class="form-control" id="file-id" type="file" name="document[file]" />
+      <input class="form-control" type="button" value="Upload" id="upload-button-id"/>
+    </p>
+
+    <script>
+      // Init the single-field file upload
+      initFileOnlyAjaxUpload();
+
+      function initFileOnlyAjaxUpload() {
+        document.getElementById('upload-button-id').onclick = function (evt) {
+          var formData = new FormData();
+          var action = '<%= v1_documents_path %>';
+          var fileInput = document.getElementById('file-id');
+          var file = fileInput.files[0];
+          formData.append('file', file);
+          formData.append('comment_id', '<%= @comment.id %>');
+          sendXHRequest(formData, action);
+        }
+      }
+
+      function sendXHRequest(formData, uri) {
+        var xhr = new XMLHttpRequest();
+        // Set up events
+        xhr.upload.addEventListener('loadstart', onloadstartHandler, false);
+        xhr.upload.addEventListener('progress', onprogressHandler, false);
+        xhr.upload.addEventListener('load', onloadHandler, false);
+        xhr.addEventListener('readystatechange', onreadystatechangeHandler, false);
+        // Set up request
+        xhr.open('POST', uri, true);
+        // Fire!
+        xhr.send(formData);
+      }
+
+      // Handle the start of the transmission
+      function onloadstartHandler(evt) {
+        var div = document.getElementById('upload-status');
+        div.innerHTML = 'Upload started.';
+      }
+
+      // Handle the end of the transmission
+      function onloadHandler(evt) {
+        var div = document.getElementById('upload-status');
+        div.innerHTML = 'File uploaded. Waiting for response.';
+      }
+
+      // Handle the progress
+      function onprogressHandler(evt) {
+        var div = document.getElementById('upload-status');
+        var percent = Math.round(evt.loaded/evt.total*100);
+        div.innerHTML = 'Progress: ' + percent + '%';
+      }
+
+      // Handle the response from the server
+      function onreadystatechangeHandler(evt) {
+        var status, text, readyState;
+        try {
+          readyState = evt.target.readyState;
+          text = evt.target.responseText;
+          status = evt.target.status;
+        }
+        catch(e) {
+          return;
+        }
+        if (readyState == 4 && status == '201' && text) {
+          var status = document.getElementById('upload-status');
+          status.innerHTML = 'Success!';
+
+          //mixing vanila js and jquery :)
+          $("#refresh_grid_trigger").val(Date.now()).trigger('change');
+
+        } else if (readyState == 4) {
+          var status = document.getElementById('upload-status');
+          status.innerHTML = 'Error!';
+        }
+      }
+    </script>
+
+    <!-- Placeholders for messages set by event handlers -->
+    <div class="col-5">
+      <p id="upload-status"></p>
+      <p id="progress"></p>
+    </div>
+  </form>
+
+  <%= render :partial => 'shared/vue_grid', :locals => {
+      :data => {
+          viewUrl: v1_document_path(-1), #HATEOAS one day
+          getDataUrl: "#{v1_documents_path}?comment_id=#{@comment.id}",
+          resourceUrl: "#{v1_document_path(-1)}?comment_id=#{@comment.id}",
+          userId: current_user.id,
+          columns: ['filename', 'size', 'content_type', 'created_at', 'actions'],
+          hideNew: true,
+          hideEdit: true
+      }.to_json
+  }%>
+</div>

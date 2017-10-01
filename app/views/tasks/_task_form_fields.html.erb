@@ -1,0 +1,45 @@
+<div class="form-group row">
+  <label class="col-2 col-form-label">Status:</label>
+  <div class="col-10">
+    <select class="form-control" v-model="formData.status">
+      <option value="done">Done</option>
+      <option value="in_progress">In Progress</option>
+      <option value="not_started">Not Started</option>
+      <option value="stalled">Stalled</option>
+    </select>
+  </div>
+</div>
+
+<div class="form-group row">
+  <label class="col-2 col-form-label">Name:</label>
+  <div class="col-10">
+    <input class="form-control" type="text" v-model="formData.name" required>
+  </div>
+</div>
+
+<div class="form-group row">
+  <label class="col-2 col-form-label">Description:</label>
+  <div class="col-10">
+      <textarea class="form-control" v-model="formData.description" required>
+      </textarea>
+  </div>
+</div>
+
+<div class="form-group row">
+  <label class="col-2 col-form-label">Priority:</label>
+  <div class="col-10">
+    <select class="form-control" v-model="formData.priority">
+      <option>P0</option>
+      <option>P1</option>
+      <option>P2</option>
+      <option>P3</option>
+    </select>
+  </div>
+</div>
+
+<div class="form-group row">
+  <label class="col-2 col-form-label">Deadline:</label>
+  <div class="col-10">
+    <input class="form-control" type="date" v-model="formData.deadline" required>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<%= javascript_pack_tag 'vue_grid' %>
+
+<div id="container">
+  <h3 class="ml-3">Project List</h3>
+  <%= render :partial => 'shared/vue_grid', :locals => {
+      :form_partial => 'shared/name_description_form_fields',
+      :data => {
+        viewUrl: project_path(-1),
+        getDataUrl: "#{v1_projects_path}?user_id=#{current_user.id}",
+        resourceUrl: v1_project_path(-1),
+        userId: current_user.id,
+        columns: ['name', 'description', 'actions']
+      }.to_json
+  }%>
+</div>

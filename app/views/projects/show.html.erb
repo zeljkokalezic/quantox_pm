@@ -1,0 +1,15 @@
+<%= javascript_pack_tag 'vue_grid' %>
+
+<div id="container">
+  <h4 class="ml-3">Project <%= "#{@project.name}"%> - Task List</h4>
+  <%= render :partial => 'shared/vue_grid', :locals => {
+      :form_partial => 'tasks/task_form_fields',
+      :data => {
+          viewUrl: task_path(-1), #HATEOAS one day
+          getDataUrl: "#{v1_tasks_path}?project_id=#{@project.id}",
+          resourceUrl: "#{v1_task_path(-1)}?project_id=#{@project.id}",
+          userId: current_user.id,
+          columns: ['status', 'name', 'description', 'priority', 'deadline', 'created_at', 'actions']
+      }.to_json
+  }%>
+</div>

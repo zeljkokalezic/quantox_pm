@@ -1,0 +1,49 @@
+<%= javascript_pack_tag 'vue_grid' %>
+
+<div id="container">
+  <div class="row ml-2">
+    <div class="col-sm-4">
+      <h5>
+        <strong>Name:</strong>
+        <%= @task.name %>
+      </h5>
+
+      <label>
+        <strong>Deadline:</strong>
+        <%= @task.deadline %>
+      </label>
+
+      <label>
+        <strong>Priority/Status:</strong>
+        <%= @task.priority %>/<%= @task.status.capitalize.humanize %>
+      </label>
+      <br/>
+      <label>
+        <strong>Project:</strong>
+        <a href=" <%= project_path(@task.project.id) %>"> <%= @task.project.name %></a>
+      </label>
+
+    </div>
+    <div class="col-sm-4">
+      <label >
+        <strong>Description:</strong>
+        <%= @task.description %>
+      </label>
+    </div>
+  </div>
+
+  <hr>
+
+  <h4 class="ml-3">Comments</h4>
+  <%= render :partial => 'shared/vue_grid', :locals => {
+      :form_partial => 'comments/comment_form_fields',
+      :data => {
+          viewUrl: comment_path(-1), #HATEOAS one day
+          documentUrl: v1_document_path(-1),
+          getDataUrl: "#{v1_comments_path}?task_id=#{@task.id}",
+          resourceUrl: "#{v1_comment_path(-1)}?task_id=#{@task.id}",
+          userId: current_user.id,
+          columns: ['text', 'documents', 'actions']
+      }.to_json
+  }%>
+</div>
