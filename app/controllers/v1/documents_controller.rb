@@ -9,10 +9,14 @@ class V1::DocumentsController < V1::BaseController
 
   # GET /documents/1
   def show
-    send_data(@document.file_contents,
+    if @document.present?
+        send_data(@document.file_contents,
               type: @document.content_type,
               filename: @document.filename,
               disposition: 'inline')
+    else
+      head :not_found
+    end
   end
 
   # POST /documents
@@ -39,7 +43,7 @@ class V1::DocumentsController < V1::BaseController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_document
-      @document = Document.find(params[:id])
+      @document = Document.find_by_id(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

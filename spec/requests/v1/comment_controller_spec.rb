@@ -87,7 +87,7 @@ describe V1::CommentsController do
     end
 
     context 'when the record exists' do
-      it 'returns the project' do
+      it 'returns the comment' do
         expect(json).not_to be_empty
         expect(json['id']).to eq(comment_id)
       end
@@ -141,7 +141,7 @@ describe V1::CommentsController do
 
       it 'returns a validation failure message' do
         expect(response.body)
-            .to match("[\"User must exist\",\"Name can't be blank\",\"Description can't be blank\"]")
+            .to eq("[\"User must exist\",\"Task must exist\",\"Text can't be blank\"]")
       end
     end
   end

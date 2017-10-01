@@ -138,7 +138,7 @@ describe V1::ProjectsController do
 
       it 'returns a validation failure message' do
         expect(response.body)
-            .to match("[\"User must exist\",\"Name can't be blank\",\"Description can't be blank\"]")
+            .to eq("[\"User must exist\",\"Name can't be blank\",\"Description can't be blank\"]")
       end
     end
   end

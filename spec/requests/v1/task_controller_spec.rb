@@ -87,7 +87,7 @@ describe V1::TasksController do
     end
 
     context 'when the record exists' do
-      it 'returns the project' do
+      it 'returns the task' do
         expect(json).not_to be_empty
         expect(json['id']).to eq(task_id)
       end
@@ -148,7 +148,7 @@ describe V1::TasksController do
 
       it 'returns a validation failure message' do
         expect(response.body)
-            .to match("[\"User must exist\",\"Name can't be blank\",\"Description can't be blank\"]")
+            .to eq("[\"User must exist\",\"Project must exist\",\"Name can't be blank\",\"Description can't be blank\",\"Priority can't be blank\",\"Status can't be blank\",\"Deadline can't be blank\"]")
       end
     end
   end
