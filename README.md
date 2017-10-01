@@ -15,4 +15,11 @@ Simple tool to manage Projects and Tasks.
 8. User can add and delete comments
 9. User can attach files to the comments
 
+Done over the weekend, dont be too harsh :) 
+
 # TODO
+1. API authentication with JWT
+2. API pagination
+3. S3 File Storage
+4. Proper UI components - sorry, my first Vue app :)
+5. Better UX
