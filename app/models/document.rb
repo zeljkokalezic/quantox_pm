@@ -2,11 +2,12 @@ class Document < ApplicationRecord
   belongs_to :comment
 
   validate :file_size_under_one_mb
+  validates :file_contents, :filename, presence: true
 
   def initialize(params = {})
     @file = params.delete(:file)
     super
-    if @file
+    if @file && @file.try(:original_filename).present?
       self.filename = sanitize_filename(@file.original_filename)
       self.content_type = @file.content_type
       self.file_contents = @file.read

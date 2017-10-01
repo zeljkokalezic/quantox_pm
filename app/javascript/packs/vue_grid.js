@@ -29,7 +29,8 @@ Vue.component('demo-grid', {
             gridData: null,
             formData: {},
             hideEdit: this.gridConfigData.hideEdit,
-            hideNew: this.gridConfigData.hideNew
+            hideNew: this.gridConfigData.hideNew,
+            formError: null
         }
     },
     computed: {
@@ -77,19 +78,18 @@ Vue.component('demo-grid', {
             this.sortOrders[key] = this.sortOrders[key] * -1
         },
         showEdit: function (entity) {
+            this.formError = null;
             this.currentEntityId = entity['id'];
             //deep copy
             this.formData = JSON.parse(JSON.stringify(entity));
             this.showEditModal = true;
         },
         showNew: function () {
+            this.formError = null;
             this.currentEntityId = null;
             //deep copy
             this.formData = {};
             this.showEditModal = true;
-        },
-        showEntity: function () {
-
         },
         showDelete: function (entity) {
             this.currentEntityId = entity['id'];
@@ -100,20 +100,17 @@ Vue.component('demo-grid', {
                 this.gridData = json;
             }.bind(this));
         },
-        doDeleteAction: function (id) {
-            this.currentEntityId = id;
+        doDeleteAction: function () {
             this.showDeleteModal = false;
             $.ajax({
                 url: this.gridConfigData.resourceUrl.replace('-1', this.currentEntityId),
                 type: 'DELETE',
                 success: function(result) {
                     this.refreshGridData();
-                }.bind(this)
+                }.bind(this),
             });
         },
-        doSaveAction: function (id) {
-            this.currentEntityId = id;
-            this.showEditModal = false;
+        doSaveAction: function () {
             this.formData.user_id = this.gridConfigData.userId;
             var url;
             var type;
@@ -133,7 +130,11 @@ Vue.component('demo-grid', {
                 data: this.formData,
                 success: function(result) {
                     this.refreshGridData();
-                }.bind(this)
+                    this.showEditModal = false;
+                }.bind(this),
+                error: function (result) {
+                    this.formError = result.responseText;
+                }.bind(this),
             });
         }
     }
