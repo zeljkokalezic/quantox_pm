@@ -1,10 +1,5 @@
 class TasksController < ApplicationController
-  before_action :set_task, only: [:show, :edit, :update, :destroy]
-
-  # GET /tasks
-  def index
-    @tasks = Task.all
-  end
+  before_action :set_task, only: [:show]
 
   # GET /tasks/1
   def show
