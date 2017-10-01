@@ -25,11 +25,16 @@ class V1::ProjectsController < V1::BaseController
   end
 
   def update
+    if @project.nil?
+      json_response(nil, :not_found)
+    else
       if @project.update(project_params)
         json_response(@project)
       else
         json_response(@project.errors.full_messages, :unprocessable_entity)
       end
+    end
+
   end
 
   def destroy
